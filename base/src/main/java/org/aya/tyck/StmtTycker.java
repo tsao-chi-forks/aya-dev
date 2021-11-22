@@ -178,12 +178,15 @@ public record StmtTycker(
     tracing(TreeBuilder::reduce);
   }
 
-  private @NotNull CtorDef visitCtor(Decl.@NotNull DataCtor ctor, ExprTycker tycker) {
+  @NotNull public CtorDef visitCtor(Decl.@NotNull DataCtor ctor, ExprTycker tycker) {
+    // TODO[ice]: remove this hack
+    if (ctor.ref.core != null) return ctor.ref.core;
     var dataRef = ctor.dataRef;
     var dataConcrete = dataRef.concrete;
     var dataSig = dataConcrete.signature;
     var dataSort = dataConcrete.sort;
     assert dataSig != null;
+    dataSig.param().forEach(tycker.localCtx::put);
     var dataArgs = dataSig.param().map(Term.Param::toArg);
     var sortParam = dataSig.sortParam();
     var dataCall = new CallTerm.Data(dataRef, sortParam.view()
@@ -228,11 +231,14 @@ public record StmtTycker(
     tracing(TreeBuilder::reduce);
   }
 
-  private @NotNull FieldDef visitField(Decl.@NotNull StructField field, ExprTycker tycker) {
+  @NotNull public FieldDef visitField(Decl.@NotNull StructField field, ExprTycker tycker) {
+    // TODO[ice]: remove this hack
+    if (field.ref.core != null) return field.ref.core;
     var structRef = field.structRef;
     var structSort = structRef.concrete.sort;
     var structSig = structRef.concrete.signature;
     assert structSig != null;
+    structSig.param().forEach(tycker.localCtx::put);
     var tele = checkTele(tycker, field.telescope, structSort);
     var result = tycker.zonk(field.result, tycker.inherit(field.result, new FormTerm.Univ(structSort))).wellTyped();
     field.signature = new Def.Signature(structSig.sortParam(), tele, result);

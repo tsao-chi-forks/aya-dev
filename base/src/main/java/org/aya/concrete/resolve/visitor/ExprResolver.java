@@ -13,7 +13,6 @@ import org.aya.api.ref.Var;
 import org.aya.concrete.Expr;
 import org.aya.concrete.resolve.context.Context;
 import org.aya.concrete.resolve.error.GeneralizedNotAvailableError;
-import org.aya.concrete.stmt.Decl;
 import org.aya.concrete.visitor.ExprFixpoint;
 import org.aya.generic.ref.GeneralizedVar;
 import org.aya.generic.ref.PreLevelVar;
@@ -88,9 +87,7 @@ public record ExprResolver(
             // Collecting tyck order for tycked terms is unnecessary, just skip.
             assert ref.core != null; // ensure it is tycked
           }
-          case Decl decl -> reference.append(decl);
-          case Decl.DataCtor ctor -> reference.append(ctor.dataRef.concrete);
-          case Decl.StructField field -> reference.append(field.structRef.concrete);
+          case TyckUnit unit -> reference.append(unit);
           default -> throw new IllegalStateException("unreachable");
         }
         yield new Expr.RefExpr(sourcePos, ref);

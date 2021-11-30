@@ -5,6 +5,7 @@ package org.aya.cli.repl;
 import kala.collection.Seq;
 import kala.collection.immutable.ImmutableSeq;
 import kala.collection.mutable.DynamicSeq;
+import kala.collection.mutable.MutableMap;
 import kala.control.Either;
 import kala.value.Ref;
 import org.aya.api.error.CountingReporter;
@@ -47,7 +48,7 @@ public class ReplCompiler {
     var resolvedExpr = expr.resolve(context);
     // in case we have un-messaged TyckException
     try (var delayedReporter = new DelayedReporter(reporter)) {
-      var tycker = new ExprTycker(delayedReporter, null);
+      var tycker = new ExprTycker(delayedReporter, null, MutableMap.create());
       return tycker.zonk(expr, tycker.synthesize(resolvedExpr.desugar(delayedReporter)));
     }
   }

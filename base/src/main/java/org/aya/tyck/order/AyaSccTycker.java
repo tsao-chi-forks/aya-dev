@@ -4,6 +4,7 @@ package org.aya.tyck.order;
 
 import kala.collection.immutable.ImmutableSeq;
 import kala.collection.mutable.DynamicSeq;
+import kala.collection.mutable.MutableMap;
 import kala.control.Option;
 import org.aya.api.error.CollectingReporter;
 import org.aya.api.util.InterruptException;
@@ -32,7 +33,7 @@ public record AyaSccTycker(
   @NotNull DynamicSeq<@NotNull Def> wellTyped
 ) implements SCCTycker<TyckUnit, AyaSccTycker.SCCTyckingFailed> {
   public AyaSccTycker(@Nullable Trace.Builder builder, @NotNull CollectingReporter reporter) {
-    this(new StmtTycker(reporter, builder), reporter, DynamicSeq.create());
+    this(new StmtTycker(reporter, builder, MutableMap.create()), reporter, DynamicSeq.create());
   }
 
   public @NotNull ImmutableSeq<TyckUnit> tyckSCC(@NotNull ImmutableSeq<TyckUnit> scc) {

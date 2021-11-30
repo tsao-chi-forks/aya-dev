@@ -9,6 +9,7 @@ import kala.collection.mutable.MutableLinkedHashMap;
 import kala.collection.mutable.MutableMap;
 import kala.tuple.Tuple2;
 import kala.tuple.Unit;
+import org.aya.api.ref.DefVar;
 import org.aya.api.ref.LocalVar;
 import org.aya.core.Meta;
 import org.aya.core.term.CallTerm;
@@ -16,6 +17,7 @@ import org.aya.core.term.IntroTerm;
 import org.aya.core.term.Term;
 import org.aya.core.visitor.VarConsumer;
 import org.aya.generic.Constants;
+import org.aya.repr.CodeShape;
 import org.aya.util.error.SourcePos;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Debug;
@@ -28,9 +30,13 @@ import java.util.function.Supplier;
  * @author re-xyr, ice1000
  */
 @Debug.Renderer(hasChildren = "true", childrenArray = "extract().toArray()")
-public record LocalCtx(@NotNull MutableMap<LocalVar, Term> localMap, @Nullable LocalCtx parent) {
+public record LocalCtx(
+  @NotNull MutableMap<LocalVar, Term> localMap,
+  @NotNull MutableMap<CodeShape, DefVar<?, ?>> builtinMap,
+  @Nullable LocalCtx parent
+) {
   public LocalCtx() {
-    this(MutableLinkedHashMap.of(), null);
+    this(MutableLinkedHashMap.of(), MutableLinkedHashMap.of(), null);
   }
 
   public @NotNull Tuple2<CallTerm.Hole, Term> freshHole(@NotNull Term type, @NotNull SourcePos sourcePos) {
@@ -107,6 +113,6 @@ public record LocalCtx(@NotNull MutableMap<LocalVar, Term> localMap, @Nullable L
   }
 
   @Contract(" -> new") public @NotNull LocalCtx derive() {
-    return new LocalCtx(MutableLinkedHashMap.of(), this);
+    return new LocalCtx(MutableLinkedHashMap.of(), builtinMap, this);
   }
 }

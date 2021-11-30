@@ -3,6 +3,7 @@
 package org.aya.tyck;
 
 
+import kala.collection.mutable.MutableMap;
 import org.aya.concrete.stmt.Decl;
 import org.aya.test.ThrowingReporter;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
  */
 public class TyckExprTest {
   public static @NotNull ExprTycker tycker() {
-    return new ExprTycker(ThrowingReporter.INSTANCE, null);
+    return new ExprTycker(ThrowingReporter.INSTANCE, null, MutableMap.create());
   }
 
   @Test public void levelEqns() {

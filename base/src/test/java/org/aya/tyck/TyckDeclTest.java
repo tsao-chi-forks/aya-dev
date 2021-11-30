@@ -3,6 +3,7 @@
 package org.aya.tyck;
 
 import kala.collection.immutable.ImmutableSeq;
+import kala.collection.mutable.MutableMap;
 import org.aya.concrete.ParseTest;
 import org.aya.concrete.desugar.AyaBinOpSet;
 import org.aya.concrete.parse.AyaParsing;
@@ -31,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TyckDeclTest {
   public static Def tyck(@NotNull Decl decl, Trace.@Nullable Builder builder) {
-    var tycker = new StmtTycker(ThrowingReporter.INSTANCE, builder);
+    var tycker = new StmtTycker(ThrowingReporter.INSTANCE, builder, MutableMap.create());
     return tycker.tyck(decl, tycker.newTycker());
   }
 

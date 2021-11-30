@@ -55,12 +55,12 @@ public sealed interface Sample extends Stmt {
     }
 
     @Override public void tyckHeader(@NotNull StmtTycker stmtTycker) {
-      var exprTycker = new ExprTycker(reporter, stmtTycker.traceBuilder());
+      var exprTycker = new ExprTycker(reporter, stmtTycker.traceBuilder(), stmtTycker.builtinMap());
       stmtTycker.tyckHeader(delegate, exprTycker);
     }
 
     @Override public @NotNull Def tyck(@NotNull StmtTycker stmtTycker) {
-      var exprTycker = new ExprTycker(reporter, stmtTycker.traceBuilder());
+      var exprTycker = new ExprTycker(reporter, stmtTycker.traceBuilder(), stmtTycker.builtinMap());
       var def = stmtTycker.tyck(delegate, exprTycker);
       var problems = reporter.problems().toImmutableSeq();
       if (problems.isEmpty()) {

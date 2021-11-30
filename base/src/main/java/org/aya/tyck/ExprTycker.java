@@ -36,6 +36,8 @@ import org.aya.generic.Level;
 import org.aya.generic.Modifier;
 import org.aya.generic.ref.PreLevelVar;
 import org.aya.pretty.doc.Doc;
+import org.aya.repr.AyaShapes;
+import org.aya.repr.CodeShape;
 import org.aya.tyck.error.*;
 import org.aya.tyck.trace.Trace;
 import org.aya.tyck.unify.DefEq;
@@ -228,6 +230,16 @@ public final class ExprTycker {
       }
       case Expr.HoleExpr hole -> inherit(hole, localCtx.freshHole(
         FormTerm.freshUniv(hole.sourcePos()), Constants.randomName(hole), hole.sourcePos())._2);
+      case Expr.LitIntExpr lit -> {
+        //noinspection unchecked
+        var nat = (DefVar<DataDef, Decl.DataDecl>) localCtx.builtinMap().getOrNull(AyaShapes.NAT);
+        if (nat == null) {
+          reporter.report(new LitProblem(lit));
+          yield new Result(ErrorTerm.unexpected(expr), new ErrorTerm(Doc.english("No Nat found"), false));
+        }
+        var dataCall = new CallTerm.Data(nat, ImmutableSeq.empty(), ImmutableSeq.empty());
+        yield new Result(AyaShapes.toAyaNat(dataCall, lit.integer()), dataCall);
+      }
       default -> new Result(ErrorTerm.unexpected(expr), new ErrorTerm(Doc.english("no rule"), false));
     };
   }
@@ -392,9 +404,10 @@ public final class ExprTycker {
   }
   */
 
-  public ExprTycker(@NotNull Reporter reporter, Trace.@Nullable Builder traceBuilder) {
+  public ExprTycker(@NotNull Reporter reporter, Trace.@Nullable Builder traceBuilder, @NotNull MutableMap<CodeShape, DefVar<?, ?>> builtinMap) {
     this.reporter = reporter;
     this.traceBuilder = traceBuilder;
+    this.localCtx.builtinMap().putAll(builtinMap);
   }
 
   public void solveMetas() {

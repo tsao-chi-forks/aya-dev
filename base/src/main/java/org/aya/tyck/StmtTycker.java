@@ -8,6 +8,7 @@ import kala.collection.mutable.MutableMap;
 import kala.control.Either;
 import kala.tuple.Tuple;
 import org.aya.api.error.Reporter;
+import org.aya.api.ref.DefVar;
 import org.aya.concrete.Expr;
 import org.aya.concrete.stmt.Decl;
 import org.aya.concrete.stmt.Signatured;
@@ -21,6 +22,9 @@ import org.aya.core.term.Term;
 import org.aya.core.visitor.Substituter;
 import org.aya.generic.Level;
 import org.aya.generic.Modifier;
+import org.aya.repr.AyaShapes;
+import org.aya.repr.CodeShape;
+import org.aya.repr.ShapeMatcher;
 import org.aya.tyck.error.PrimProblem;
 import org.aya.tyck.pat.Conquer;
 import org.aya.tyck.pat.PatClassifier;
@@ -42,10 +46,11 @@ import java.util.function.Consumer;
  */
 public record StmtTycker(
   @NotNull Reporter reporter,
-  Trace.@Nullable Builder traceBuilder
+  Trace.@Nullable Builder traceBuilder,
+  @NotNull MutableMap<CodeShape, DefVar<?, ?>> builtinMap
 ) {
   public @NotNull ExprTycker newTycker() {
-    return new ExprTycker(reporter, traceBuilder);
+    return new ExprTycker(reporter, traceBuilder, builtinMap);
   }
 
   private void tracing(@NotNull Consumer<Trace.@NotNull Builder> consumer) {
@@ -64,7 +69,11 @@ public record StmtTycker(
   }
 
   public @NotNull Def tyck(@NotNull Decl decl, @NotNull ExprTycker tycker) {
-    return traced(decl, tycker, this::doTyck);
+    var def = traced(decl, tycker, this::doTyck);
+    if (!builtinMap.containsKey(AyaShapes.NAT) && ShapeMatcher.match(AyaShapes.NAT, def)) {
+      builtinMap.put(AyaShapes.NAT, def.ref());
+    }
+    return def;
   }
 
   private @NotNull Def doTyck(@NotNull Decl predecl, @NotNull ExprTycker tycker) {

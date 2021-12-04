@@ -25,6 +25,16 @@ public final class DefVar<Core extends CoreDef, Concrete extends ConcreteDecl> i
     return name;
   }
 
+  private boolean infix = false;
+
+  public void setInfix() {
+    infix = true;
+  }
+
+  @Override @Contract(pure = true) public boolean isInfix() {
+    return infix;
+  }
+
   private DefVar(Concrete concrete, Core core, @NotNull String name) {
     this.concrete = concrete;
     this.core = core;

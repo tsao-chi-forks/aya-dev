@@ -11,4 +11,8 @@ import org.jetbrains.annotations.NotNull;
 @Debug.Renderer(hasChildren = "false", text = "name")
 public interface Var {
   @NotNull String name();
+
+  default boolean isInfix() {
+    return false;
+  }
 }
